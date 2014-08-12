@@ -268,7 +268,7 @@ public class ZMQAppender extends AppenderSkeleton {
     }
 
     /**
-     * the <b> hwm option define the ØMQ socket HWM (high water mark).
+     * the <b>hwm</b> option define the ØMQ socket HWM (high water mark).
      */
     public void setHwm(long hwm) {
         this.hwm = hwm;

@@ -61,4 +61,8 @@
             </plugin>
         </plugins>
     </reporting>
+    <scm>
+    	<url>git@https://github.com/fbacchella/ZMQAppender</url>
+    	<connection>scm:git:git@github.com:fbacchella/ZMQAppender.git</connection>
+    </scm>
 </project>
