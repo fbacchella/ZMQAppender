@@ -128,7 +128,7 @@ public class ZMQAppender extends AppenderSkeleton {
             if (application != null) {
                 event.setProperty("application", application);
             }
-            modifiedEvent.setProperty("host", hostname);
+            modifiedEvent.setProperty("hostname", hostname);
 
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(buffer);
@@ -268,7 +268,7 @@ public class ZMQAppender extends AppenderSkeleton {
     }
 
     /**
-     * the <b>hwm</b> option define the ØMQ socket HWM (high water mark).
+     * The <b>hwm</b> option define the ØMQ socket HWM (high water mark).
      */
     public void setHwm(long hwm) {
         this.hwm = hwm;
