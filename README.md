@@ -1,7 +1,7 @@
 ZMQAppender
 ===========
 
-A ØMQ (ZeroMQ) Appender for log4j, that serialize Log4JEvent using the java serialization format.
+A ØMQ (ZeroMQ, http://zeromq.org) Appender for log4j, that serialize Log4JEvent using the java serialization format.
 
 Many options can be changed :
 
