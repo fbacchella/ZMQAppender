@@ -8,7 +8,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
 import org.zeromq.ZMQ;
@@ -69,7 +68,6 @@ public class ZMQAppender extends AppenderSkeleton {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
-            LogLog.error(e.getMessage());
         }
     }
 
@@ -80,13 +78,12 @@ public class ZMQAppender extends AppenderSkeleton {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
-            LogLog.error(e.getMessage());
         }
     }
 
     @Override
     public void activateOptions() {
-        if(endpoint == null) {
+        if (endpoint == null) {
             errorHandler.error("Unconfigured endpoint, the ZMQ append can't log");
             closed = true;
             return;
@@ -99,7 +96,7 @@ public class ZMQAppender extends AppenderSkeleton {
     }
 
     public void close() {
-        if ( closed) {
+        if (closed) {
             return;            
         }
         try {
@@ -133,7 +130,7 @@ public class ZMQAppender extends AppenderSkeleton {
             event.getThrowableStrRep();
 
             if (application != null) {
-                event.setProperty("application", application);
+                modifiedEvent.setProperty("application", application);
             }
             modifiedEvent.setProperty("hostname", hostname);
 
@@ -263,8 +260,8 @@ public class ZMQAppender extends AppenderSkeleton {
      * application getting logged.
      * If property was already set (via system property), don't set here.
      */
-    public void setApplication(String lapp) {
-        this.application = lapp;
+    public void setApplication(String application) {
+        this.application = application;
     }
 
     /**
