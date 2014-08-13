@@ -57,7 +57,7 @@ public class ZMQAppender extends AppenderSkeleton {
     private String hostname;
     private ZMQSocketType type = ZMQSocketType.PUSH;
     private Method method = Method.CONNECT;
-    private String endpoint = "inproc://log4jappender";
+    private String endpoint = null;
     boolean locationInfo = false;
     private String application;
     private long hwm = 1000;
@@ -68,7 +68,8 @@ public class ZMQAppender extends AppenderSkeleton {
         try {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e.getLocalizedMessage(), e);
+            errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
+            LogLog.error(e.getMessage());
         }
     }
 
@@ -78,12 +79,18 @@ public class ZMQAppender extends AppenderSkeleton {
         try {
             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
-            throw new RuntimeException(e.getLocalizedMessage(), e);
+            errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
+            LogLog.error(e.getMessage());
         }
     }
 
     @Override
     public void activateOptions() {
+        if(endpoint == null) {
+            errorHandler.error("Unconfigured endpoint, the ZMQ append can't log");
+            closed = true;
+            return;
+        }
         super.activateOptions();
         socket = ctx.socket(type.type);
         socket.setLinger(1);
@@ -92,6 +99,9 @@ public class ZMQAppender extends AppenderSkeleton {
     }
 
     public void close() {
+        if ( closed) {
+            return;            
+        }
         try {
             socket.close();
         } catch (Exception e) {
@@ -108,9 +118,6 @@ public class ZMQAppender extends AppenderSkeleton {
     @SuppressWarnings("unchecked")
     @Override
     protected void append(LoggingEvent event) {
-        if ( closed) {
-            return;            
-        }
         try {
             // The event is copied, because a host field is added in the properties
             LoggingEvent modifiedEvent = new LoggingEvent(event.getFQNOfLoggerClass(), event.getLogger(), event.getTimeStamp(), event.getLevel(), event.getMessage(),
@@ -141,21 +148,23 @@ public class ZMQAppender extends AppenderSkeleton {
         } catch (zmq.ZError.IOException e ) {
             try {
                 socket.close();
+                closed = true;
             } catch (Exception e1) {
             }
         } catch (java.nio.channels.ClosedSelectorException e ) {
             try {
                 socket.close();
+                closed = true;
             } catch (Exception e1) {
             }
         } catch (org.zeromq.ZMQException e ) {
             try {
                 socket.close();
+                closed = true;
             } catch (Exception e1) {
             }
         } catch (IOException e) {
             errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
-            LogLog.error(e.getMessage());
         }
     }
 
@@ -168,9 +177,8 @@ public class ZMQAppender extends AppenderSkeleton {
         try {
             this.type = ZMQSocketType.valueOf(type.toUpperCase());
         } catch (Exception e) {
-            String msg = "[" + type + "] should be one of [PUSH, PUB]" + ", using default ØMQ socket type, PUSH by default.";
+            String msg = "[" + type + "] should be one of [PUSH, PUB]" + ", using default ZeroMQ socket type, PUSH by default.";
             errorHandler.error(msg, e, ErrorCode.GENERIC_FAILURE);
-            LogLog.error(msg);
         }
     }
 
@@ -190,9 +198,8 @@ public class ZMQAppender extends AppenderSkeleton {
         try {
             this.method = Method.valueOf(method.toUpperCase());
         } catch (Exception e) {
-            String msg = "[" + type + "] should be one of [connect, bind]" + ", using default ØMQ socket type, connect by default.";
+            String msg = "[" + type + "] should be one of [connect, bind]" + ", using default ZeroMQ socket type, connect by default.";
             errorHandler.error(msg, e, ErrorCode.GENERIC_FAILURE);
-            LogLog.error(msg);
         }
     }
 
