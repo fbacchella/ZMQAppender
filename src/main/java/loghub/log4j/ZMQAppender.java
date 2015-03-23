@@ -54,7 +54,7 @@ public class ZMQAppender extends AppenderSkeleton {
     private final boolean localCtx;
     private final ZMQ.Context ctx;
     private String hostname;
-    private ZMQSocketType type = ZMQSocketType.PUSH;
+    private ZMQSocketType type = ZMQSocketType.PUB;
     private Method method = Method.CONNECT;
     private String endpoint = null;
     boolean locationInfo = false;
