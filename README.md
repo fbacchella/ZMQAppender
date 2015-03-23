@@ -21,7 +21,9 @@ Many options can be changed :
    * hostname: it will be added as a `hostname` property, default to the value of `java.net.InetAddress.getLocalHost().getHostName()`.
    * locationInfo: true of false, it will send or not the log event location (file, line, method), default to false.
    * application: the application name, it's optionnal.
+ * serializer: a class used to serialize Log4j's events to a byte array. It must implements loghub.log4j.Serializer class and provide a constructor with no arguments.
 
+Two serializers are provided: loghub.log4j.JavaSerializer (using native java serialization)and loghub.log4j.MsgPackSerializer (serialized to a msgpack object, as a map)
 
 A complete declaration is :
 
@@ -32,5 +34,6 @@ A complete declaration is :
     log4j.appender.A1.hwm=1000
     log4j.appender.A1.hostname=myhost
     log4j.appender.A1.locationInfo=true
-    log4j.appender.A1.application
+    log4j.appender.A1.serializer=loghub.log4j.JavaSerializer
+    log4j.appender.A1.application=some_application_name
     log4j.rootLogger=TRACE, A2

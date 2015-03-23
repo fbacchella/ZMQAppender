@@ -1,8 +1,7 @@
 package loghub.log4j;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -61,6 +60,9 @@ public class ZMQAppender extends AppenderSkeleton {
     private String application;
     private long hwm = 1000;
 
+    private String serializerName = JavaSerializer.class.getName();
+    private Serializer serializer = null;
+
     public ZMQAppender() {
         ctx = ZMQ.context(1);
         localCtx = true;
@@ -93,6 +95,28 @@ public class ZMQAppender extends AppenderSkeleton {
         socket.setLinger(1);
         socket.setHWM(hwm);
         method.act(socket, endpoint);
+
+        try {
+            @SuppressWarnings("unchecked")
+            Class<? extends Serializer> c = (Class<? extends Serializer>) getClass().getClassLoader().loadClass(serializerName);
+            serializer = c.getConstructor().newInstance();
+        } catch (ClassCastException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (ClassNotFoundException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (IllegalArgumentException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (SecurityException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (InstantiationException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (IllegalAccessException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (InvocationTargetException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        } catch (NoSuchMethodException e) {
+            errorHandler.error("failed to create serializer", e, ErrorCode.GENERIC_FAILURE);
+        }
     }
 
     public void close() {
@@ -121,27 +145,13 @@ public class ZMQAppender extends AppenderSkeleton {
                     event.getThreadName(), event.getThrowableInformation(), event.getNDC(), locationInfo ? event.getLocationInformation() : null,
                             new HashMap<String,String>(event.getProperties()));
 
-            // Done in org.apache.log4j.net.SocketAppender
-            // Might be cargo cult
-            event.getNDC();
-            event.getThreadName();
-            event.getMDCCopy();
-            event.getRenderedMessage();
-            event.getThrowableStrRep();
-
             if (application != null) {
                 modifiedEvent.setProperty("application", application);
             }
             modifiedEvent.setProperty("hostname", hostname);
 
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(buffer);
-            oos.writeObject(modifiedEvent);
-            oos.flush();
+            socket.send(serializer.objectToBytes(modifiedEvent));
 
-            socket.send(buffer.toByteArray());
-            oos.close();
-            buffer.close();
         } catch (zmq.ZError.IOException e ) {
             try {
                 socket.close();
@@ -161,7 +171,7 @@ public class ZMQAppender extends AppenderSkeleton {
             } catch (Exception e1) {
             }
         } catch (IOException e) {
-            errorHandler.error(e.getMessage(), e, ErrorCode.GENERIC_FAILURE);
+            errorHandler.error("failed to serialize event", e, ErrorCode.GENERIC_FAILURE);
         }
     }
 
@@ -283,6 +293,14 @@ public class ZMQAppender extends AppenderSkeleton {
      */
     public long getHwm() {
         return hwm;
+    }
+
+    public String getSerializer() {
+        return serializerName;
+    }
+
+    public void setSerializer(String serializer) {
+        this.serializerName = serializer;
     }
 
 }
