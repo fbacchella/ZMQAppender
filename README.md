@@ -14,7 +14,7 @@ Many options can be changed :
 
  * The options tied to ØMQ are
     * endoint: the endpoint URL, like `tcp://localhost:2120`, mandatory.
-    * type: the socket type, either `PUB` or `PUSH`, default to `PUSH`.
+    * type: the socket type, either `PUB` or `PUSH`, default to `PUB`.
     * method: the socket connection method, either `connect` or `bind`, default to `connect`.
     * hwm: the HWM for the socket, default to 1000.
  * common options are
@@ -36,4 +36,4 @@ A complete declaration is :
     log4j.appender.A1.locationInfo=true
     log4j.appender.A1.serializer=loghub.log4j.JavaSerializer
     log4j.appender.A1.application=some_application_name
-    log4j.rootLogger=TRACE, A2
+    log4j.rootLogger=TRACE, A1
