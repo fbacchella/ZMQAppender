@@ -16,8 +16,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <source>1.6</source>
-        <target>1.6</target>
+        <source>1.7</source>
+        <target>1.7</target>
     </properties>
 
     <dependencies>
@@ -35,12 +35,12 @@
         <dependency>
             <groupId>org.zeromq</groupId>
             <artifactId>jeromq</artifactId>
-            <version>0.3.4</version>
+            <version>0.3.6</version>
         </dependency>
         <dependency>
             <groupId>org.msgpack</groupId>
             <artifactId>msgpack-core</artifactId>
-            <version>0.8.7</version>
+            <version>0.8.12</version>
         </dependency>
     </dependencies>
 
