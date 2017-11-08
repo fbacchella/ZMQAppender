@@ -58,7 +58,7 @@ public class ZMQAppender extends AppenderSkeleton {
     private String endpoint = null;
     boolean locationInfo = false;
     private String application;
-    private long hwm = 1000;
+    private int hwm = 1000;
 
     private String serializerName = JavaSerializer.class.getName();
     private Serializer serializer = null;
@@ -121,7 +121,7 @@ public class ZMQAppender extends AppenderSkeleton {
 
     public void close() {
         if (closed) {
-            return;            
+            return;
         }
         try {
             socket.close();
@@ -136,11 +136,11 @@ public class ZMQAppender extends AppenderSkeleton {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void append(LoggingEvent event) {
         try {
             // The event is copied, because a host field is added in the properties
+            @SuppressWarnings("unchecked")
             LoggingEvent modifiedEvent = new LoggingEvent(event.getFQNOfLoggerClass(), event.getLogger(), event.getTimeStamp(), event.getLevel(), event.getMessage(),
                     event.getThreadName(), event.getThrowableInformation(), event.getNDC(), locationInfo ? event.getLocationInformation() : null,
                             new HashMap<String,String>(event.getProperties()));
@@ -284,14 +284,14 @@ public class ZMQAppender extends AppenderSkeleton {
     /**
      * The <b>hwm</b> option define the ØMQ socket HWM (high water mark).
      */
-    public void setHwm(long hwm) {
+    public void setHwm(int hwm) {
         this.hwm = hwm;
     }
 
     /**
      * @return the ØMQ socket HWM.
      */
-    public long getHwm() {
+    public int getHwm() {
         return hwm;
     }
 
